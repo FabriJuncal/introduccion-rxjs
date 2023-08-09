@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable } from 'rxjs'; // Importamos la librería rxjs para utilizar observables
+import { FootballService } from '../../services/football.service'; // Importamos el servicio FootballService
 
 @Component({
   selector: 'app-btn-observables',
@@ -7,6 +8,8 @@ import { Observable } from 'rxjs';
   styleUrls: ['./btn-observables.component.css']
 })
 export class BtnObservablesComponent {
+
+  constructor(private srvFootball: FootballService){}
 
   useObservable() {
     // Creamos un nuevo Observable que recibe una función llamada 'subscriber'
@@ -38,51 +41,33 @@ export class BtnObservablesComponent {
   }
 
 
-  unusedObservable() {
-    // Definimos una función asincrónica personalizada llamada myAsyncFunction
-    function myAsyncFunction(onNext: any, onComplete: any) {
-      // Emitimos el valor 'Hola' al llamar a onNext
-      onNext('Hola');
-      // Después de 1 segundo, emitimos el valor 'Mundo' al llamar a onNext
-      setTimeout(() => onNext('Mundo'), 1000);
-      // Después de 2 segundos, llamamos a onComplete para indicar que la tarea está completa
-      setTimeout(() => onComplete(), 2000);
-    }
+  // Función para consumir la API utilizando promesas
+  unusedObservableApi() {
+    // Llamamos al método getTeamsData del servicio FootballService con el país 'argentina'
+    this.srvFootball.getTeamsData('argentina')
+      .then(data => {
+        // Imprimimos los datos de la respuesta en la consola
+        console.log(data.response);
+      })
+      .catch(error => {
+        // En caso de error, mostramos un mensaje de error en la consola
+        console.error('Error al obtener los datos:', error);
+      });
+  }
 
-    // Variable para controlar si debemos cancelar la suscripción
-    let shouldCancel = false;
-
-    // Creamos una Promesa para manejar la ejecución asincrónica
-    const promise = new Promise<void>((resolve) => {
-      // Llamamos a la función asincrónica "myAsyncFunction"
-      myAsyncFunction(
-        // Definimos una función de devolución de llamada para manejar los valores emitidos
-        (value: any) => {
-          // Comprobamos si debemos cancelar la suscripción
-          if (shouldCancel) {
-            console.log('Promesa cancelada');
-            return;
-          }
-          console.log(value);
-        },
-        // Definimos una función de devolución de llamada para manejar la finalización del proceso
-        () => {
-          console.log('Completo');
-          // Resolvemos la Promesa para indicar que todas las operaciones están completas
-          resolve();
-        }
-      );
-    });
-
-    // Para cancelar la suscripción después de 1.5 segundos
-    setTimeout(() => {
-      shouldCancel = true;
-    }, 1500);
-
-    // Cuando la Promesa se resuelva, mostramos un mensaje
-    promise.then(() => {
-      console.log('Todas las operaciones completadas');
-    });
+  // Función para consumir la API utilizando observables
+  useObservableApi() {
+    // Llamamos al método getTeamsDataObservable del servicio FootballService con el país 'argentina'
+    this.srvFootball.getTeamsDataObservable('argentina').subscribe(
+      data => {
+        // Imprimimos los datos de la respuesta en la consola
+        console.log(data.response);
+      },
+      error => {
+        // En caso de error, mostramos un mensaje de error en la consola
+        console.error('Error al obtener los datos:', error);
+      }
+    );
   }
 
 
